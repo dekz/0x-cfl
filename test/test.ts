@@ -86,12 +86,13 @@ const providerEngine = getProvider();
     //     value: quote.worstCaseQuoteInfo.takerTokenAmount,
     //     data: calldataHexString,
     // });
-    // console.log('transaction submitted:', txHash)
     
-    const fillResults = await contract.liquidityRequiringFunctionBytes.callAsync(calldataHexString);
+    const fillResults = await contract.liquidityRequiringFunctionBytes.callAsync(calldataHexString, {
+        value: quote.worstCaseQuoteInfo.takerTokenAmount
+    });
     console.log('FillResults', fillResults);
     
-    // Fill the orders via the contract
+    // // Fill the orders via the contract
     const txHash = await contract.liquidityRequiringFunctionBytes.sendTransactionAsync(calldataHexString, {
         value: quote.worstCaseQuoteInfo.takerTokenAmount
     });
