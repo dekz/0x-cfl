@@ -1,6 +1,5 @@
 {
     "compilerOptions": { "outDir": "lib", "rootDir": ".", "resolveJsonModule": true },
     "include": ["./src/**/*", "./test/**/*", "./generated-wrappers/**/*"],
-    "files": ["generated-artifacts/LiquidityRequiringContract.json"],
-    "exclude": ["./deploy/solc/solc_bin"]
+    "files": ["generated-artifacts/LiquidityRequiringContract.json"]
 }
