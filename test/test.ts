@@ -12,7 +12,7 @@ import { SwapQuoteConsumer, SwapQuoter, ConsumerType } from '@0x/asset-swapper';
 import * as LiquidityRequiringContractArtifact from '../generated-artifacts/LiquidityRequiringContract.json';
 import { LiquidityRequiringContractContract } from '../generated-wrappers/liquidity_requiring_contract';
 
-const RPC_URL = 'https://kovan.infura.io/v3/502999b3f7d54f00a6677f86660ffb94';
+const RPC_URL = 'https://kovan.infura.io/v3/TOKEN';
 const MNEMONIC = 'warfare barrel polar small credit alert picnic innocent measure honey tape hair';
 const SRA_URL = 'https://api.kovan.radarrelay.com/0x/v2/'
 const ZRX_KOVAN_ADDRESS = '0x2002d3812f58e35f0ea1ffbf80a75a38c32175fa';
