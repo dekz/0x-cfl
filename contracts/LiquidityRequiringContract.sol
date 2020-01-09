@@ -10,20 +10,23 @@ contract LiquidityRequiringContract
     constructor (address _forwarder)
         public
     {
-        FORWARDER = IForwarder(_forwarder);
+        EXCHANGE = IExchange(_exchange);
+        ERC20PROXY = _erc20Proxy;
     }
 
-    function liquidityRequiringFunctionBytes(bytes memory callDataHex)
+    function setProxyAllowance(address token, uint256 amount)
         public
-        payable
-        returns (LibFillResults.FillResults memory fillResults)
+    {
+        IERC20Token(token).approve(ERC20PROXY, amount);
+    }
+
+    function liquidityRequiringFunction(bytes memory callDataHex)
+        public
+        returns (bool success)
     {
         // callData contains the entire function call
-        (bool success, bytes memory data) = address(FORWARDER).call.value(msg.value)(callDataHex);
-        fillResults = abi.decode(data, (LibFillResults.FillResults));
+        (bool success) = address(EXCHANGE).call(callDataHex);
         require(success == true, "COMPLETE_FILL_FAILED");
-        // do things with the 1 ZRX you acquired! 
-        // also, maybe refund the msg.value unused.
-        return fillResults;
+        return success;
     }
 }

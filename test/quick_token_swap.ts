@@ -27,4 +27,5 @@ const setUpWeb3 = async () => {
 
 (async () => {
     const { web3Wrapper, provider } = await setUpWeb3(); 
+    
 })()
