@@ -18,7 +18,8 @@
         "@0x/subproviders": "^6.0.3",
         "@0x/utils": "^5.1.2",
         "@0x/web3-wrapper": "^7.0.3",
-        "node-fetch": "^2.6.0"
+        "node-fetch": "^2.6.0",
+        "qs": "^6.9.1"
     },
     "devDependencies": {
         "@0x/abi-gen": "^5.0.3",
