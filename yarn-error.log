@@ -1,5 +1,5 @@
 Arguments: 
-  /Users/davidsun/.nvm/versions/node/v8.16.0/bin/node /usr/local/Cellar/yarn/1.16.0/libexec/bin/yarn.js add ethers node-fetch
+  /Users/davidsun/.nvm/versions/node/v8.16.0/bin/node /usr/local/Cellar/yarn/1.16.0/libexec/bin/yarn.js add @0x/dev-constants
 
 PATH: 
   /Users/davidsun/.nvm/versions/node/v8.16.0/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/davidsun/.nvm/versions/node/v8.16.0/bin:/Users/davidsun/.antigen/bundles/robbyrussell/oh-my-zsh/plugins/git:/Users/davidsun/.antigen/bundles/mafredri/zsh-async:/Users/davidsun/.antigen/bundles/lukechilds/zsh-better-npm-completion:/Users/davidsun/.antigen/bundles/marzocchi/zsh-notify:/Users/davidsun/.antigen/bundles/zsh-users/zsh-syntax-highlighting:/Users/davidsun/.antigen/bundles/denysdovhan/spaceship-prompt:/usr/local/opt/fzf/bin
@@ -14,13 +14,17 @@ Platform:
   darwin x64
 
 Trace: 
-  SyntaxError: /Users/davidsun/Code/0x/0x-cfl/package.json: Unexpected token } in JSON at position 747
-      at JSON.parse (<anonymous>)
-      at /usr/local/Cellar/yarn/1.16.0/libexec/lib/cli.js:1625:59
-      at Generator.next (<anonymous>)
-      at step (/usr/local/Cellar/yarn/1.16.0/libexec/lib/cli.js:304:30)
-      at /usr/local/Cellar/yarn/1.16.0/libexec/lib/cli.js:315:13
-      at <anonymous>
+  Error: https://registry.npmjs.org/@0x%2fdev-constants: Not found
+      at Request.params.callback [as _callback] (/usr/local/Cellar/yarn/1.16.0/libexec/lib/cli.js:66091:18)
+      at Request.self.callback (/usr/local/Cellar/yarn/1.16.0/libexec/lib/cli.js:129590:22)
+      at emitTwo (events.js:126:13)
+      at Request.emit (events.js:214:7)
+      at Request.<anonymous> (/usr/local/Cellar/yarn/1.16.0/libexec/lib/cli.js:130562:10)
+      at emitOne (events.js:116:13)
+      at Request.emit (events.js:211:7)
+      at IncomingMessage.<anonymous> (/usr/local/Cellar/yarn/1.16.0/libexec/lib/cli.js:130484:12)
+      at Object.onceWrapper (events.js:313:30)
+      at emitNone (events.js:111:20)
 
 npm manifest: 
   {
@@ -30,16 +34,24 @@ npm manifest:
       "license": "MIT",
       "scripts": {
           "compile": "sol-compiler",
-          "generate_contract_wrappers": "abi-gen --abis ${npm_package_config_abis} --template ./node_modules/@0x/abi-gen-templates/contract.handlebars --partials './node_modules/@0x/abi-gen-templates/partials/**/*.handlebars' --output generated-wrappers --backend ethers",
+          "generate_contract_wrappers": "abi-gen --debug --abis  ${npm_package_config_abis} --output generated-wrappers --backend ethers",
           "build": "yarn compile && yarn generate_contract_wrappers",
-          "test": "ts-node test/test.ts"
+          "test": "ts-node web3/quick_token_swap.ts"
       },
       "config": {
-          "abis": "./generated-artifacts/@(LiquidityRequiringContract).json"
+          "abis": "./generated-artifacts/@(SimpleTokenSwapContract).json"
       },
       "dependencies": {
+          "@0x/contract-addresses": "^4.2.0",
           "@0x/contracts-erc20": "^3.0.3",
           "@0x/contracts-exchange": "^3.0.3",
+          "@0x/contracts-exchange-forwarder": "^4.0.3",
+          "@0x/contracts-exchange-libs": "^4.0.3",
+          "@0x/subproviders": "^6.0.3",
+          "@0x/utils": "^5.1.2",
+          "@0x/web3-wrapper": "^7.0.3",
+          "node-fetch": "^2.6.0",
+          "qs": "^6.9.1"
       },
       "devDependencies": {
           "@0x/abi-gen": "^5.0.3",
@@ -161,6 +173,28 @@ Lockfile:
     dependencies:
       "@0x/base-contract" "^6.0.3"
   
+  "@0x/contracts-exchange-forwarder@^4.0.3":
+    version "4.0.3"
+    resolved "https://registry.yarnpkg.com/@0x/contracts-exchange-forwarder/-/contracts-exchange-forwarder-4.0.3.tgz#4f51d7ca663c0aef827c2d7a77619d8d1d426f0d"
+    integrity sha512-cHhsVTg/kfEWpC1PwgwEDM6BlBfiD9pYOkTCBsjHj/f700IA/D+x7hccAN2rh7sGubz+CZ5Aif8KRcuMBCktjg==
+    dependencies:
+      "@0x/base-contract" "^6.0.3"
+      "@0x/typescript-typings" "^5.0.1"
+      ethereum-types "^3.0.0"
+  
+  "@0x/contracts-exchange-libs@^4.0.3":
+    version "4.0.3"
+    resolved "https://registry.yarnpkg.com/@0x/contracts-exchange-libs/-/contracts-exchange-libs-4.0.3.tgz#af407f83d99267a5ce921a5a5dd78149367b5e09"
+    integrity sha512-zZ+hYsWVEeewMOQwqxfI7igA/wD+ro8hnL1p+BeWDsIlgTtN1KRYvTwYO6KolBal3ijJzp0XUENhA8EzuwE1bQ==
+    dependencies:
+      "@0x/base-contract" "^6.0.3"
+      "@0x/contracts-utils" "^4.0.3"
+      "@0x/order-utils" "^10.1.0"
+      "@0x/types" "^3.1.1"
+      "@0x/typescript-typings" "^5.0.1"
+      "@0x/utils" "^5.1.2"
+      ethereum-types "^3.0.0"
+  
   "@0x/contracts-exchange@^3.0.3":
     version "3.0.3"
     resolved "https://registry.yarnpkg.com/@0x/contracts-exchange/-/contracts-exchange-3.0.3.tgz#ca3a4503a9d4700bc56c8a02033c477dbb024eef"
@@ -212,6 +246,17 @@ Lockfile:
       lodash "^4.17.11"
       make-promises-safe "^1.1.0"
       mocha "^6.2.0"
+  
+  "@0x/contracts-utils@^4.0.3":
+    version "4.0.3"
+    resolved "https://registry.yarnpkg.com/@0x/contracts-utils/-/contracts-utils-4.0.3.tgz#b97f950b4db2bb0b793c83c6fe616b7aa3c2976e"
+    integrity sha512-PaI9k0DXRJdMsjGklEqcwc1IPGc1+03UMqZ5YJ/PhBu0XCvqslkVC2WyS8qxjxU/cggxxXLYxzKrg2eDNN640A==
+    dependencies:
+      "@0x/base-contract" "^6.0.3"
+      "@0x/typescript-typings" "^5.0.1"
+      "@0x/utils" "^5.1.2"
+      bn.js "^4.11.8"
+      ethereum-types "^3.0.0"
   
   "@0x/dev-utils@^3.1.0":
     version "3.1.0"
@@ -2562,19 +2607,6 @@ Lockfile:
       hash.js "^1.0.0"
       inherits "^2.0.1"
   
-  elliptic@6.5.2:
-    version "6.5.2"
-    resolved "https://registry.yarnpkg.com/elliptic/-/elliptic-6.5.2.tgz#05c5678d7173c049d8ca433552224a495d0e3762"
-    integrity sha512-f4x70okzZbIQl/NSRLkI/+tteV/9WqL98zx+SQ69KbXxmVrmjwsNUPn/gYJJ0sHvEak24cZgHIPegRePAtA/xw==
-    dependencies:
-      bn.js "^4.4.0"
-      brorand "^1.0.1"
-      hash.js "^1.0.0"
-      hmac-drbg "^1.0.0"
-      inherits "^2.0.1"
-      minimalistic-assert "^1.0.0"
-      minimalistic-crypto-utils "^1.0.0"
-  
   elliptic@^6.0.0, elliptic@^6.4.0, elliptic@^6.4.1:
     version "6.5.0"
     resolved "https://registry.yarnpkg.com/elliptic/-/elliptic-6.5.0.tgz#2b8ed4c891b7de3200e14412a5b8248c7af505ca"
@@ -3148,21 +3180,6 @@ Lockfile:
       hash.js "1.1.3"
       js-sha3 "0.5.7"
       scrypt-js "2.0.3"
-      setimmediate "1.0.4"
-      uuid "2.0.1"
-      xmlhttprequest "1.8.0"
-  
-  ethers@^4.0.42:
-    version "4.0.42"
-    resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.42.tgz#7def83a1f770b84d44cf1c2dfc58b7fd29d1d45d"
-    integrity sha512-2gmmt5x683Xz4QwGDBVJhrdXevVAEr5fnXPGDPou2AKB+zklrirGpl0w1SHBn7Wa9hbL2z6MvP3n7k8Yss2MFg==
-    dependencies:
-      aes-js "3.0.0"
-      bn.js "^4.4.0"
-      elliptic "6.5.2"
-      hash.js "1.1.3"
-      js-sha3 "0.5.7"
-      scrypt-js "2.0.4"
       setimmediate "1.0.4"
       uuid "2.0.1"
       xmlhttprequest "1.8.0"
@@ -6285,6 +6302,11 @@ Lockfile:
     version "6.7.0"
     resolved "https://registry.yarnpkg.com/qs/-/qs-6.7.0.tgz#41dc1a015e3d581f1621776be31afb2876a9b1bc"
   
+  qs@^6.9.1:
+    version "6.9.1"
+    resolved "https://registry.yarnpkg.com/qs/-/qs-6.9.1.tgz#20082c65cb78223635ab1a9eaca8875a29bf8ec9"
+    integrity sha512-Cxm7/SS/y/Z3MHWSxXb8lIFqgqBowP5JMlTUFyJN88y0SGQhVmZnqFK/PeuMX9LzUyWsqqhNxIyg0jlzq946yA==
+  
   qs@~6.5.2:
     version "6.5.2"
     resolved "https://registry.yarnpkg.com/qs/-/qs-6.5.2.tgz#cb3ae806e8740444584ef154ce8ee98d403f3e36"
@@ -6512,7 +6534,7 @@ Lockfile:
       is-absolute "^1.0.0"
       remove-trailing-separator "^1.1.0"
   
-  request@^2.67.0, request@^2.79.0, request@^2.85.0, request@^2.88.0:
+  request@^2.67.0, request@^2.79.0, request@^2.85.0:
     version "2.88.0"
     resolved "https://registry.yarnpkg.com/request/-/request-2.88.0.tgz#9c2fca4f7d35b592efe57c7f0a55e81052124fef"
     dependencies:

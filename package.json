@@ -5,19 +5,25 @@
     "license": "MIT",
     "scripts": {
         "compile": "sol-compiler",
-        "generate_contract_wrappers": "abi-gen --abis ${npm_package_config_abis} --template ./node_modules/@0x/abi-gen-templates/contract.handlebars --partials './node_modules/@0x/abi-gen-templates/partials/**/*.handlebars' --output generated-wrappers --backend ethers",
+        "generate_contract_wrappers": "abi-gen --debug --abis  ${npm_package_config_abis} --output generated-wrappers --backend ethers",
         "build": "yarn compile && yarn generate_contract_wrappers",
-        "test": "ts-node test/test.ts"
+        "test": "ts-node -r dotenv/config web3/quick_token_swap.ts",
+        "migrate": "ts-node -r dotenv/config migrations/index.ts"
     },
     "config": {
-        "abis": "./generated-artifacts/@(LiquidityRequiringContract).json"
+        "abis": "./generated-artifacts/@(SimpleTokenSwapContract).json"
     },
     "dependencies": {
+        "@0x/contract-addresses": "^4.2.0",
         "@0x/contracts-erc20": "^3.0.3",
         "@0x/contracts-exchange": "^3.0.3",
+        "@0x/contracts-exchange-forwarder": "^4.0.3",
+        "@0x/contracts-exchange-libs": "^4.0.3",
+        "@0x/dev-utils": "^3.1.0",
         "@0x/subproviders": "^6.0.3",
         "@0x/utils": "^5.1.2",
         "@0x/web3-wrapper": "^7.0.3",
+        "dotenv": "^8.2.0",
         "node-fetch": "^2.6.0",
         "qs": "^6.9.1"
     },
