@@ -19,7 +19,7 @@ export const setUpWeb3 = async (mnemonic, rpcUrl) => {
     }
 }
 
-export const setUpWeb3Ganache = async (mnemonic, rpcUrl) => {
+export const setUpWeb3GanacheAsync = async (mnemonic, rpcUrl) => {
     console.log('forking mainnet in ganache...')
     const ganacheSubprovider = new GanacheSubprovider({
         fork: rpcUrl,

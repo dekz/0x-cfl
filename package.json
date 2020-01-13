@@ -8,13 +8,14 @@
         "generate_contract_wrappers": "abi-gen --debug --abis  ${npm_package_config_abis} --output generated-wrappers --backend ethers",
         "build": "yarn compile && yarn generate_contract_wrappers",
         "test": "ts-node -r dotenv/config web3/quick_token_swap.ts",
-        "migrate": "ts-node -r dotenv/config migrations/index.ts"
+        "migrate": "ts-node -r dotenv/config migrations/migrate.ts"
     },
     "config": {
         "abis": "./generated-artifacts/@(SimpleTokenSwapContract).json"
     },
     "dependencies": {
         "@0x/contract-addresses": "^4.2.0",
+        "@0x/contracts-asset-proxy": "^3.1.0",
         "@0x/contracts-erc20": "^3.0.3",
         "@0x/contracts-exchange": "^3.0.3",
         "@0x/contracts-exchange-forwarder": "^4.0.3",
