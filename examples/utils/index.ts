@@ -1,7 +1,7 @@
 import { MnemonicWalletSubprovider, GanacheSubprovider, Web3ProviderEngine, RPCSubprovider } from '@0x/subproviders';
 import { BigNumber, providerUtils } from '@0x/utils';
 import { Web3Wrapper } from '@0x/web3-wrapper';
-import * as qs from 'qs';
+import { ERC20TokenContract } from '@0x/contracts-erc20'
 
 export const setUpWeb3 = async (mnemonic, rpcUrl) => {
     const providerEngine = new Web3ProviderEngine();
@@ -25,19 +25,28 @@ export const setUpWeb3GanacheAsync = async (mnemonic, rpcUrl) => {
         fork: rpcUrl,
         gasLimit: 100_000_000,
         blockTime: 0,
-        // fork_block_number: forkBlockNumber,
-        vmErrorsOnRPCResponse: false,
         // logger: { log: console.log },
     } as any);
     const providerEngine = new Web3ProviderEngine();
-    providerEngine.addProvider(ganacheSubprovider)
     providerEngine.addProvider(new MnemonicWalletSubprovider({
-        mnemonic: mnemonic,
+        mnemonic,
     }));
+    providerEngine.addProvider(ganacheSubprovider);
     providerUtils.startProviderEngine(providerEngine);
     const web3Wrapper = new Web3Wrapper(providerEngine);
     return {
         provider: providerEngine,
         web3Wrapper,
     }
+}
+
+export const baseUnitAmount = (unitAmount: number, decimals = 18): BigNumber => {
+    return Web3Wrapper.toBaseUnitAmount(new BigNumber(unitAmount), decimals);
+};
+
+export const fetchERC20BalanceFactory = (provider, erc20Address) => { 
+    const daiContract = new ERC20TokenContract(erc20Address, provider);
+    return async (address) => {
+        return daiContract.balanceOf(address).callAsync()
+    } 
 }

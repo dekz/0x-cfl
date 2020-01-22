@@ -1,23 +1,16 @@
 import { ERC20TokenContract } from '@0x/contracts-erc20'
-import { BigNumber } from '@0x/utils';
-import { Web3Wrapper } from '@0x/web3-wrapper';
 import * as qs from 'qs';
+import * as fetch from 'node-fetch';
 
 import { SimpleTokenSwapContractContract } from '../generated-wrappers/simple_token_swap_contract';
 
-import { setUpWeb3GanacheAsync } from './utils';
+import { baseUnitAmount, setUpWeb3GanacheAsync } from './utils';
 import { migrationAsync } from '../migrations/migration';
-
-const fetch = require('node-fetch');
 
 const ETHEREUM_RPC_URL = process.env.ETHEREUM_RPC_URL;
 const MNEMONIC = process.env.MNEMONIC;
 
 
-const baseUnitAmount = (unitAmount: number, decimals = 18): BigNumber => {
-    return Web3Wrapper.toBaseUnitAmount(new BigNumber(unitAmount), decimals);
-};
- 
 (async () => {
     const { web3Wrapper, provider } = await setUpWeb3GanacheAsync(MNEMONIC, ETHEREUM_RPC_URL);
 
@@ -31,7 +24,7 @@ const baseUnitAmount = (unitAmount: number, decimals = 18): BigNumber => {
         buyToken: 'DAI',
         buyAmount: buyAmount.toString(),
     }
-    const res = await fetch(`https://api.0x.org/swap/quote?${qs.stringify(params)}`);
+    const res = await fetch(`https://api.0x.org/swap/v0/quote?${qs.stringify(params)}`);
     const quote = await res.json();
 
     console.log('Received quote:', quote);
