@@ -6,7 +6,7 @@ import "@0x/contracts-erc20/contracts/src/interfaces/IERC20Token.sol";
 import "@0x/contracts-erc20/contracts/src/LibERC20Token.sol";
 import "@0x/contracts-asset-proxy/contracts/src/interfaces/IAssetData.sol";
 
-contract SimpleTokenSwapContract
+contract SimpleProtocolFeeAbstractionContract
 {
     address internal OWNER;
     IForwarder internal FORWARDER;
@@ -28,22 +28,10 @@ contract SimpleTokenSwapContract
         _;
     }
 
-    // TODO: add comments
     function withdrawAllERC20AssetBalance(bytes memory assetData) public onlyOwner onlyERC20AssetData {
         address tokenAddress = assetData.readAddress(16);
         IERC20Token tokenContract = IERC20Token(tokenAddress);
         uint256 balance = tokenContract.balance(self);
         LibERC20Token.transfer(tokenAddress, msg.sender, amount);
-    }
-
-    // TODO: Add a function that executes the transaction provided by the API
-    function liquidityRequiringFunction(bytes memory callDataHex)
-        public
-        payable
-        returns (bool)
-    {
-        // callData contains the entire function call
-        (bool success, bytes memory _data) = address(FORWARDER).call.value(msg.value)(callDataHex);
-        return success;
     }
 }
