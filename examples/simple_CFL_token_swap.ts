@@ -15,7 +15,7 @@ const MNEMONIC = process.env.MNEMONIC;
 const DAI_CONTRACT = '0x6b175474e89094c44da98b954eedeac495271d0f'; // DAI mainnet contract address
 
 (async () => {
-    // initialize ganache and deploy contracts
+    // initialize ganache fork and deploy contracts
     const { web3Wrapper, provider } = await setUpWeb3GanacheAsync(MNEMONIC, ETHEREUM_RPC_URL);
     const { simpleTokenSwapAddress } = await migrationAsync(provider, web3Wrapper);
     
