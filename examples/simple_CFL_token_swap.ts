@@ -1,4 +1,3 @@
-import { ERC20TokenContract } from '@0x/contracts-erc20'
 import * as qs from 'qs';
 import * as fetch from 'node-fetch';
 
