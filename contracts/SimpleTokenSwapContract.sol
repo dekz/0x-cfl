@@ -35,7 +35,6 @@ contract SimpleTokenSwapContract
         LibERC20Token.transfer(tokenAddress, msg.sender, amount);
     }
 
-    // TODO: Add a function that executes the transaction provided by the API
     function liquidityRequiringFunction(bytes memory callDataHex)
         public
         payable
