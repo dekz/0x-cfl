@@ -28,7 +28,6 @@ contract SimpleTokenSwapContract
         _;
     }
 
-    // TODO: add comments
     function withdrawAllERC20AssetBalance(bytes memory assetData) public onlyOwner onlyERC20AssetData {
         address tokenAddress = assetData.readAddress(16);
         IERC20Token tokenContract = IERC20Token(tokenAddress);
@@ -37,13 +36,4 @@ contract SimpleTokenSwapContract
     }
 
     // TODO: Add a function that executes the transaction provided by the API
-    function liquidityRequiringFunction(bytes memory callDataHex)
-        public
-        payable
-        returns (bool)
-    {
-        // callData contains the entire function call
-        (bool success, bytes memory _data) = address(FORWARDER).call.value(msg.value)(callDataHex);
-        return success;
-    }
 }
