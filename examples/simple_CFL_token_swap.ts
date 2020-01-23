@@ -7,7 +7,7 @@ import { baseUnitAmount, setUpWeb3GanacheAsync, fetchERC20BalanceFactory } from 
 import { migrationAsync } from '../migrations/migration';
 
 // wrappers
-// TODO: wrapper imports goes here
+import { SimpleTokenSwapContractContract } from '../generated-wrappers/simple_token_swap_contract';
 
 // constants
 const ETHEREUM_RPC_URL = process.env.ETHEREUM_RPC_URL;
@@ -24,10 +24,36 @@ const DAI_CONTRACT = '0x6b175474e89094c44da98b954eedeac495271d0f'; // DAI mainne
 
     // 1. call 0x api for a quote for one dollar of DAI.
 
-    // TODO: write fetch GET call to get a swap quote from 0x API
+    const buyAmount = baseUnitAmount(1);
+
+    const params = {
+        sellToken: 'ETH',
+        buyToken: 'DAI',
+        buyAmount: buyAmount.toString(),
+    }
+
+    const res = await fetch(`https://api.0x.org/swap/quote?${qs.stringify(params)}`);
+    const quote = await res.json();
+
+    console.log('Received quote:', quote)
 
     // 2. send response from 0x api to your smart contract
 
-    // TODO: write web3 smart contract interaction
+    const userAddresses = await web3Wrapper.getAvailableAddressesAsync();
+    const takerAddress = userAddresses[0];
 
+    const contract = new SimpleTokenSwapContractContract(simpleTokenSwapAddress, provider);
+
+    try {
+        console.log(`contract dai balance before: ${await fetchDAIBalanceAsync(simpleTokenSwapAddress)}`);
+        await contract.liquidityRequiringFunction(quote.data).sendTransactionAsync({
+            from: takerAddress,
+            value: quote.value,
+            gasPrice: quote.gasPrice,
+            gas: 300000,
+        });
+        console.log(`contract dai balance after: ${await fetchDAIBalanceAsync(simpleTokenSwapAddress)}`);
+    } catch (e) {
+        console.log(e)
+    }
 })()
