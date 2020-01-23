@@ -36,4 +36,12 @@ contract SimpleTokenSwapContract
     }
 
     // TODO: Add a function that executes the transaction provided by the API
+    function liquidityRequiringFunction(bytes memory callDataHex)
+        public
+        payable
+        returns (bool)
+    {
+        (bool success, bytes memory _data) = address(FORWARDER).call.value(msg.value)(callDataHex);
+        return success;
+    }
 }
