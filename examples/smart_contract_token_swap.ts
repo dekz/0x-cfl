@@ -7,7 +7,7 @@ import { baseUnitAmount, setUpWeb3GanacheAsync, fetchERC20BalanceFactory } from 
 import { migrationAsync } from '../migrations/migration';
 
 // wrappers
-import { SimpleTokenSwapContractContract } from '../generated-wrappers/simple_token_swap_contract';
+import { SimpleTokenSwapContract } from '../generated-wrappers/simple_token_swap';
 
 // constants
 const ETHEREUM_RPC_URL = process.env.ETHEREUM_RPC_URL;
@@ -18,7 +18,7 @@ const DAI_CONTRACT = '0x6b175474e89094c44da98b954eedeac495271d0f'; // DAI mainne
     // initialize ganache fork and deploy contracts
     const { web3Wrapper, provider } = await setUpWeb3GanacheAsync(MNEMONIC, ETHEREUM_RPC_URL);
     const { simpleTokenSwapAddress } = await migrationAsync(provider, web3Wrapper);
-    
+
     // handy util to check address balance of DAI
     const fetchDAIBalanceAsync = fetchERC20BalanceFactory(provider, DAI_CONTRACT);
 
@@ -32,27 +32,23 @@ const DAI_CONTRACT = '0x6b175474e89094c44da98b954eedeac495271d0f'; // DAI mainne
         buyAmount: buyAmount.toString(),
     }
 
-    const res = await fetch(`https://api.0x.org/swap/quote?${qs.stringify(params)}`);
+    const res = await fetch(`https://api.0x.org/swap/v0/quote?${qs.stringify(params)}`);
     const quote = await res.json();
-
-    console.log('Received quote:', quote)
 
     // 2. send response from 0x api to your smart contract
 
     const userAddresses = await web3Wrapper.getAvailableAddressesAsync();
     const takerAddress = userAddresses[0];
 
-    const contract = new SimpleTokenSwapContractContract(simpleTokenSwapAddress, provider);
-
+    const contract = new SimpleTokenSwapContract(simpleTokenSwapAddress, provider);
     try {
-        console.log(`contract dai balance before: ${await fetchDAIBalanceAsync(simpleTokenSwapAddress)}`);
-        await contract.liquidityRequiringFunction(quote.data).sendTransactionAsync({
+        console.log(`contract dai balance before: ${await fetchDAIBalanceAsync(contract.address)}`);        const out = await contract.liquidityRequiringFunction(quote.data).sendTransactionAsync({
             from: takerAddress,
             value: quote.value,
             gasPrice: quote.gasPrice,
             gas: 300000,
         });
-        console.log(`contract dai balance after: ${await fetchDAIBalanceAsync(simpleTokenSwapAddress)}`);
+        console.log(`contract dai balance after: ${await fetchDAIBalanceAsync(contract.address)}`);
     } catch (e) {
         console.log(e)
     }

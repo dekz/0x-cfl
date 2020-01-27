@@ -34,9 +34,14 @@ const DAI_CONTRACT = '0x6b175474e89094c44da98b954eedeac495271d0f'; // DAI mainne
 
     // 2. send transaction with response from 0x api
     try {
-        console.log(`contract dai balance before: ${await fetchDAIBalanceAsync(takerAddress)}`);
-        await web3Wrapper.sendTransactionAsync(quote);
-        console.log(`contract dai balance after: ${await fetchDAIBalanceAsync(takerAddress)}`);
+        console.log(`takerAddress dai balance before: ${await fetchDAIBalanceAsync(takerAddress)}`);
+        await web3Wrapper.sendTransactionAsync({
+            ...quote,
+            ...{
+                from: takerAddress,
+            },
+        });
+        console.log(`takerAddress dai balance after: ${await fetchDAIBalanceAsync(takerAddress)}`);
     } catch (e) {
         console.log(e)
     }

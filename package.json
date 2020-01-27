@@ -6,12 +6,13 @@
     "scripts": {
         "compile": "sol-compiler",
         "generate_contract_wrappers": "abi-gen --debug --abis  ${npm_package_config_abis} --output generated-wrappers --backend ethers",
-        "build_contracts": "yarn compile && yarn generate_contract_wrappers",
-        "test:simple_CFL_token_swap": "ts-node -r dotenv/config examples/simple_CFL_token_swap.ts",
-        "test:simple_token_swaps": "ts-node -r dotenv/config examples/simple_token_swaps.ts"
+        "build:contracts": "yarn compile && yarn generate_contract_wrappers",
+        "test:smart_contract_token_swap": "ts-node -r dotenv/config examples/smart_contract_token_swap.ts",
+        "test:margin_trading": "ts-node -r dotenv/config examples/smart_contract_token_swap.ts",
+        "test:web3_token_swaps": "ts-node -r dotenv/config examples/web3_simple_token_swaps.ts"
     },
     "config": {
-        "abis": "./generated-artifacts/@(SimpleTokenSwapContract).json"
+        "abis": "./generated-artifacts/@(SimpleTokenSwap|SimpleMarginTrading).json"
     },
     "dependencies": {
         "@0x/contract-addresses": "^4.2.0",

@@ -47,6 +47,6 @@ export const baseUnitAmount = (unitAmount: number, decimals = 18): BigNumber => 
 export const fetchERC20BalanceFactory = (provider, erc20Address) => { 
     const daiContract = new ERC20TokenContract(erc20Address, provider);
     return async (address) => {
-        return daiContract.balanceOf(address).callAsync()
+        return daiContract.balanceOf(address).callAsync();
     } 
 }
