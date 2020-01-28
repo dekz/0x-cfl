@@ -8,6 +8,8 @@ import "@0x/contracts-asset-proxy/contracts/src/interfaces/IAssetData.sol";
 
 contract SimpleTokenSwapContract
 {
+    using LibBytes for bytes;
+
     address internal OWNER;
     IForwarder internal FORWARDER;
     constructor (address _forwarder)
@@ -28,11 +30,11 @@ contract SimpleTokenSwapContract
         _;
     }
 
-    function withdrawAllERC20AssetBalance(bytes memory assetData) public onlyOwner onlyERC20AssetData {
+    function withdrawAllERC20AssetBalance(bytes memory assetData) public onlyOwner onlyERC20AssetData(assetData) {
         address tokenAddress = assetData.readAddress(16);
         IERC20Token tokenContract = IERC20Token(tokenAddress);
-        uint256 balance = tokenContract.balance(self);
-        LibERC20Token.transfer(tokenAddress, msg.sender, amount);
+        uint256 balance = tokenContract.balanceOf(address(this));
+        LibERC20Token.transfer(tokenAddress, msg.sender, balance);
     }
 
     // TODO: Add a function that executes the transaction provided by the API
