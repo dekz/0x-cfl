@@ -7,7 +7,7 @@
         "compile": "sol-compiler",
         "generate_contract_wrappers": "abi-gen --debug --abis  ${npm_package_config_abis} --output generated-wrappers --backend ethers",
         "build_contracts": "yarn compile && yarn generate_contract_wrappers",
-        "test:simple_CFL_token_swap": "ts-node -r dotenv/config examples/simple_CFL_token_swap.ts",
+        "test:simple_contract_token_swap": "ts-node -r dotenv/config examples/simple_contract_token_swap.ts",
         "test:simple_token_swaps": "ts-node -r dotenv/config examples/simple_token_swaps.ts"
     },
     "config": {
