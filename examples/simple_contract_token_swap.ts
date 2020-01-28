@@ -10,6 +10,7 @@ import { migrationAsync } from '../migrations/migration';
 // TODO: wrapper imports goes here
 
 // constants
+const SWAP_URL = 'https://api.0x.org/swap/v0';
 const ETHEREUM_RPC_URL = process.env.ETHEREUM_RPC_URL;
 const MNEMONIC = process.env.MNEMONIC;
 const DAI_CONTRACT = '0x6b175474e89094c44da98b954eedeac495271d0f'; // DAI mainnet contract address
