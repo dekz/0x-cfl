@@ -106,6 +106,7 @@ contract SimpleMarginTrading
         LibERC20Token.approve(token, delegated, MAX_UINT);
     }
 
+    
     function open(ZeroExQuote memory quote)
         public
         payable
