@@ -33,22 +33,29 @@ export const migrationAsync = async (provider, web3Wrapper) => {
         zeroExaddresses.forwarder,
     );
 
-    // const simpleMarginTrading = await SimpleMarginTradingContract.deployAsync(
-    //     SimpleMarginTradingArtifact.compilerOutput.evm.bytecode.object,
-    //     SimpleMarginTradingArtifact.compilerOutput.abi,
-    //     provider,
-    //     txDefaults,
-    //     {},
-    //     zeroExaddresses.exchange,
-    //     COMPOUND_FINANCE_ADDRESSES.comptroller,
-    //     COMPOUND_FINANCE_ADDRESSES.cdai,
-    //     DAI_ADDRESS,
-    //     COMPOUND_FINANCE_ADDRESSES.ceth,
-    //     zeroExaddresses.etherToken,
-    //     );
-
-    return {
+    console.log(zeroExaddresses.exchange);
+    console.log(COMPOUND_FINANCE_ADDRESSES.comptroller);
+    console.log(COMPOUND_FINANCE_ADDRESSES.cdai);
+    console.log(DAI_ADDRESS);
+    console.log(COMPOUND_FINANCE_ADDRESSES.ceth);
+    console.log(zeroExaddresses.etherToken);
+    
+    const simpleMarginTrading = await SimpleMarginTradingContract.deployAsync(
+        SimpleMarginTradingArtifact.compilerOutput.evm.bytecode.object,
+        SimpleMarginTradingArtifact.compilerOutput.abi,
+        provider,
+        txDefaults,
+        {},
+        zeroExaddresses.exchange,
+        COMPOUND_FINANCE_ADDRESSES.comptroller,
+        COMPOUND_FINANCE_ADDRESSES.cdai,
+        DAI_ADDRESS,
+        COMPOUND_FINANCE_ADDRESSES.ceth,
+        zeroExaddresses.etherToken,
+        );
+    
+        return {
         simpleTokenSwapAddress: simpleTokenSwap.address,
-        // simpleMarginTradingAddress: simpleMarginTrading.address,
+        simpleMarginTradingAddress: simpleMarginTrading.address,
     }
 }

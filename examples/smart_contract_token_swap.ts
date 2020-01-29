@@ -34,7 +34,6 @@ const DAI_CONTRACT = '0x6b175474e89094c44da98b954eedeac495271d0f'; // DAI mainne
 
     const res = await fetch(`https://api.0x.org/swap/v0/quote?${qs.stringify(params)}`);
     const quote = await res.json();
-
     // 2. send response from 0x api to your smart contract
 
     const userAddresses = await web3Wrapper.getAvailableAddressesAsync();
@@ -42,7 +41,8 @@ const DAI_CONTRACT = '0x6b175474e89094c44da98b954eedeac495271d0f'; // DAI mainne
 
     const contract = new SimpleTokenSwapContract(simpleTokenSwapAddress, provider);
     try {
-        console.log(`contract dai balance before: ${await fetchDAIBalanceAsync(contract.address)}`);        const out = await contract.liquidityRequiringFunction(quote.data).sendTransactionAsync({
+        console.log(`contract dai balance before: ${await fetchDAIBalanceAsync(contract.address)}`);        
+        await contract.liquidityRequiringFunction(quote.data).sendTransactionAsync({
             from: takerAddress,
             value: quote.value,
             gasPrice: quote.gasPrice,

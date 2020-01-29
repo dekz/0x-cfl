@@ -8,14 +8,14 @@
         "generate_contract_wrappers": "abi-gen --debug --abis  ${npm_package_config_abis} --output generated-wrappers --backend ethers",
         "build:contracts": "yarn compile && yarn generate_contract_wrappers",
         "test:smart_contract_token_swap": "ts-node -r dotenv/config examples/smart_contract_token_swap.ts",
-        "test:margin_trading": "ts-node -r dotenv/config examples/smart_contract_token_swap.ts",
+        "test:margin_trading": "ts-node -r dotenv/config examples/smart_contract_margin_trading.ts",
         "test:web3_token_swaps": "ts-node -r dotenv/config examples/web3_simple_token_swaps.ts"
     },
     "config": {
         "abis": "./generated-artifacts/@(SimpleTokenSwap|SimpleMarginTrading).json"
     },
     "dependencies": {
-        "@0x/contract-addresses": "^4.2.0",
+        "@0x/contract-addresses": "^4.3.0",
         "@0x/contracts-asset-proxy": "^3.1.0",
         "@0x/contracts-erc20": "^3.0.3",
         "@0x/contracts-exchange": "^3.1.0",
