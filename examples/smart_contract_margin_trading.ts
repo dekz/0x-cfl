@@ -53,20 +53,16 @@ const open = async (web3Wrapper: Web3Wrapper, provider: Web3ProviderEngine, cont
             from: takerAddress,
             value,
             gasPrice: quote.gasPrice,
-            gas: 300000,
+            gas: 3000000,
         });
         console.log(out);
-        // console.log('fetchDAIBalanceAsync', await fetchDAIBalanceAsync(contract.address));
-        // console.log('fetchCETHBalanceAsync', await fetchCETHBalanceAsync(contract.address));
-        // const txHash = await contract.open(onchainPassableQuote).sendTransactionAsync({
-        //     from: takerAddress,
-        //     value,
-        //     gasPrice: quote.gasPrice,
-        //     gas: 300000,
-        // });
-        // console.log(txHash);
-        // console.log('fetchDAIBalanceAsync', await fetchDAIBalanceAsync(contract.address));
-        // console.log('fetchCETHBalanceAsync', await fetchCETHBalanceAsync(contract.address));
+        const txHash = await contract.open(onchainPassableQuote).sendTransactionAsync({
+            from: takerAddress,
+            value,
+            gasPrice: quote.gasPrice,
+            gas: 300000,
+        });
+        console.log(txHash);
     } catch (e) {
         console.log(e)
     }

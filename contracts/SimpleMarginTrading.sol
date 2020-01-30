@@ -117,24 +117,23 @@ contract SimpleMarginTrading
         payable
         onlyOwner
         onlyWhenClosed
-        returns (uint256 positionBalance, uint256 wethBalance, uint256 borrowBalance, uint256 debug)
+        returns (uint256 positionBalance, uint256 wethBalance, uint256 borrowBalance)
     {
         // increase position by msg.value - protocolFee
         positionBalance = msg.value.safeSub(quote.protocolFee);
         // mint collateral in compound
         CETH.mint.value(positionBalance)();
-        CETH.borrow(100);
-        require(debug == 0, "borrow didn't work");
         // borrow token
+        require(CDAI.borrow(quote.sellAmount) == 0, "borrow didn't work");
         // swap token for collateral
         _approve(address(DAI), _getZeroExApprovalAddress());
         // execute swap
-        // (bool success, bytes memory data) = address(EXCHANGE).call.value(quote.protocolFee)(quote.calldataHex);
-        // require(success, "Swap not filled.");
-        // // decode fill results
-        // LibFillResults.FillResults memory fillResults = abi.decode(data, (LibFillResults.FillResults));
-        // // position size increase by bought amount of WETH
-        // positionBalance += fillResults.makerAssetFilledAmount;
+        (bool success, bytes memory data) = address(EXCHANGE).call.value(quote.protocolFee)(quote.calldataHex);
+        require(success, "Swap not filled.");
+        // decode fill results
+        LibFillResults.FillResults memory fillResults = abi.decode(data, (LibFillResults.FillResults));
+        // position size increase by bought amount of WETH
+        positionBalance += fillResults.makerAssetFilledAmount;
         wethBalance = WETH.balanceOf(address(this));
         borrowBalance = CDAI.borrowBalanceCurrent(address(this));
         // at this point you have CETH, and swapped for WETH
