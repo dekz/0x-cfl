@@ -24,22 +24,15 @@ export const migrationAsync = async (provider, web3Wrapper) => {
     
     const zeroExaddresses = getContractAddressesForChainOrThrow(CHAIN_ID);
 
-    const simpleTokenSwap = await SimpleTokenSwapContract.deployAsync(
-        SimpleTokenSwapArtifact.compilerOutput.evm.bytecode.object,
-        SimpleTokenSwapArtifact.compilerOutput.abi,
-        provider,
-        txDefaults,
-        {},
-        zeroExaddresses.forwarder,
-    );
+    // const simpleTokenSwap = await SimpleTokenSwapContract.deployAsync(
+    //     SimpleTokenSwapArtifact.compilerOutput.evm.bytecode.object,
+    //     SimpleTokenSwapArtifact.compilerOutput.abi,
+    //     provider,
+    //     txDefaults,
+    //     {},
+    //     zeroExaddresses.forwarder,
+    // );
 
-    console.log(zeroExaddresses.exchange);
-    console.log(COMPOUND_FINANCE_ADDRESSES.comptroller);
-    console.log(COMPOUND_FINANCE_ADDRESSES.cdai);
-    console.log(DAI_ADDRESS);
-    console.log(COMPOUND_FINANCE_ADDRESSES.ceth);
-    console.log(zeroExaddresses.etherToken);
-    
     const simpleMarginTrading = await SimpleMarginTradingContract.deployAsync(
         SimpleMarginTradingArtifact.compilerOutput.evm.bytecode.object,
         SimpleMarginTradingArtifact.compilerOutput.abi,
@@ -55,7 +48,7 @@ export const migrationAsync = async (provider, web3Wrapper) => {
         );
     
         return {
-        simpleTokenSwapAddress: simpleTokenSwap.address,
+        // simpleTokenSwapAddress: simpleTokenSwap.address,
         simpleMarginTradingAddress: simpleMarginTrading.address,
     }
 }

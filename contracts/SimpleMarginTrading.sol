@@ -39,7 +39,7 @@ contract SimpleMarginTrading
         address sellToken;
         uint256 buyAmount;
         uint256 sellAmount;
-        uint256 protocolFeeAmount;
+        uint256 protocolFee;
         bytes calldataHex;
     }
 
@@ -48,15 +48,15 @@ contract SimpleMarginTrading
         address _comptroller,
         address _cdai,
         address _dai,
-        address _ceth,
+        address payable _ceth,
         address _weth
         )
         public
     {
         EXCHANGE = IExchange(_exchange);
         COMPTROLLER = IComptroller(_comptroller);
-        CDAI = ICERC20(_ceth);
-        CETH = ICETH(_cdai);
+        CDAI = ICERC20(_cdai);
+        CETH = ICETH(_ceth);
         WETH = IEtherToken(_weth);
         DAI = IERC20Token(_dai);
 
@@ -64,6 +64,10 @@ contract SimpleMarginTrading
 
         // Enter markets
         _enterMarkets();
+    }
+
+    // receive ETH
+    function () external payable {
     }
 
     // modifiers
@@ -88,7 +92,9 @@ contract SimpleMarginTrading
         address[] memory markets = new address[](2);
         markets[0] = address(CETH);
         markets[1] = address(CDAI);
-        COMPTROLLER.enterMarkets(markets);
+        uint[] memory errors = COMPTROLLER.enterMarkets(markets);
+        require(errors[0] == 0, "CETH cant enter market");
+        require(errors[1] == 0, "CDAI cant enter market");
     }
 
     function _getZeroExApprovalAddress()
@@ -106,31 +112,29 @@ contract SimpleMarginTrading
         LibERC20Token.approve(token, delegated, MAX_UINT);
     }
 
-    
     function open(ZeroExQuote memory quote)
         public
         payable
         onlyOwner
         onlyWhenClosed
-        returns (uint256 positionBalance, uint256 wethBalance, uint256 borrowBalance)
+        returns (uint256 positionBalance, uint256 wethBalance, uint256 borrowBalance, uint256 debug)
     {
-        // increase position by msg.value - protocolFeeAmount
-        positionBalance = msg.value.safeSub(quote.protocolFeeAmount);
+        // increase position by msg.value - protocolFee
+        positionBalance = msg.value.safeSub(quote.protocolFee);
         // mint collateral in compound
         CETH.mint.value(positionBalance)();
+        CETH.borrow(100);
+        require(debug == 0, "borrow didn't work");
         // borrow token
-        assert(CDAI.borrow(quote.sellAmount) == 0);
         // swap token for collateral
         _approve(address(DAI), _getZeroExApprovalAddress());
-        // verify quote is valid
-        require(quote.buyToken == address(WETH), "not buying WETH");
         // execute swap
-        (bool success, bytes memory data) = address(EXCHANGE).call.value(quote.protocolFeeAmount)(quote.calldataHex);
-        require(success, "Swap not filled.");
-        // decode fill results
-        LibFillResults.FillResults memory fillResults = abi.decode(data, (LibFillResults.FillResults));
-        // position size increase by bought amount of WETH
-        positionBalance += fillResults.makerAssetFilledAmount;
+        // (bool success, bytes memory data) = address(EXCHANGE).call.value(quote.protocolFee)(quote.calldataHex);
+        // require(success, "Swap not filled.");
+        // // decode fill results
+        // LibFillResults.FillResults memory fillResults = abi.decode(data, (LibFillResults.FillResults));
+        // // position size increase by bought amount of WETH
+        // positionBalance += fillResults.makerAssetFilledAmount;
         wethBalance = WETH.balanceOf(address(this));
         borrowBalance = CDAI.borrowBalanceCurrent(address(this));
         // at this point you have CETH, and swapped for WETH
@@ -154,7 +158,7 @@ contract SimpleMarginTrading
         require(quote.buyToken == address(DAI), "not buying DAI");
         require(daiBorrowBalance < quote.buyAmount, "not enough DAI to repay");
         // execute swap
-        (bool success, bytes memory data) = address(EXCHANGE).call.value(quote.protocolFeeAmount)(quote.calldataHex);
+        (bool success, bytes memory data) = address(EXCHANGE).call.value(quote.protocolFee)(quote.calldataHex);
         require(success, "Swap not filled.");
         // decode results
         LibFillResults.FillResults memory fillResults = abi.decode(data, (LibFillResults.FillResults));

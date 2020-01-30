@@ -1,12 +1,9 @@
 pragma solidity ^0.5.9;
 pragma experimental ABIEncoderV2;
 
-// libraries
-import "@0x/contracts-erc20/contracts/src/interfaces/IERC20Token.sol";
-
 // Collection of interfaces for Compound finance v2; written by Instadapp
 
-contract ICToken is IERC20Token {
+contract ICToken {
     function redeem(uint redeemTokens) external returns (uint);
     function redeemUnderlying(uint redeemAmount) external returns (uint);
     function borrow(uint borrowAmount) external returns (uint);
@@ -19,4 +16,11 @@ contract ICToken is IERC20Token {
     function supplyRatePerBlock() external view returns (uint);
     function totalReserves() external view returns (uint);
     function reserveFactorMantissa() external view returns (uint);
+
+    function totalSupply() external view returns (uint256);
+    function balanceOf(address owner) external view returns (uint256 balance);
+    function allowance(address, address) external view returns (uint);
+    function approve(address, uint) external;
+    function transfer(address, uint) external returns (bool);
+    function transferFrom(address, address, uint) external returns (bool);
 }
