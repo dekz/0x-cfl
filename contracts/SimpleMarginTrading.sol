@@ -117,7 +117,7 @@ contract SimpleMarginTrading
         payable
         onlyOwner
         onlyWhenClosed
-        returns (uint256 positionBalance, uint256 wethBalance, uint256 borrowBalance)
+        returns (uint256 positionBalance, uint256 borrowBalance)
     {
         // increase position by msg.value - protocolFee
         positionBalance = msg.value.safeSub(quote.protocolFee);
@@ -134,7 +134,6 @@ contract SimpleMarginTrading
         LibFillResults.FillResults memory fillResults = abi.decode(data, (LibFillResults.FillResults));
         // position size increase by bought amount of WETH
         positionBalance += fillResults.makerAssetFilledAmount;
-        wethBalance = WETH.balanceOf(address(this));
         borrowBalance = CDAI.borrowBalanceCurrent(address(this));
         // at this point you have CETH, and swapped for WETH
     }
@@ -145,7 +144,7 @@ contract SimpleMarginTrading
         public
         onlyOwner
         onlyWhenOpen
-        returns (bool)
+        returns (uint ethBalance)
     {
         // approve for swap
         _approve(address(WETH), _getZeroExApprovalAddress());
@@ -153,7 +152,7 @@ contract SimpleMarginTrading
         uint256 wethBalance = WETH.balanceOf(address(this));
         uint256 daiBorrowBalance = CDAI.borrowBalanceCurrent(address(this)); // TODO
 
-        require(wethBalance < quote.sellAmount, "not enough to swap");
+        require(wethBalance > quote.sellAmount, "not enough to swap");
         require(quote.buyToken == address(DAI), "not buying DAI");
         require(daiBorrowBalance < quote.buyAmount, "not enough DAI to repay");
         // execute swap
@@ -166,14 +165,17 @@ contract SimpleMarginTrading
         // verify sufficient DAI to repay
         require(CDAI.repayBorrow(fillResults.makerAssetFilledAmount) == 0);
         // get back ETH
-        require(CETH.redeem(CETH.borrowBalanceCurrent(address(this))) == 0); // TODO correct?
+        require(CETH.redeem(CETH.balanceOfUnderlying(address(this))) == 0); // TODO correct?
         // withdraw all WETH Balance;
         WETH.withdraw(wethBalance);
         // transfer all ETH back to owner;
+        ethBalance = address(this).balance;
         OWNER.transfer(address(this).balance);
         // reset balance
-        wethBalance = 0;
         positionBalance = 0;
-        return false;
+    }
+
+    function getBorrowBalance() public onlyOwner returns (uint256) {
+        return CDAI.borrowBalanceCurrent(address(this));
     }
 }

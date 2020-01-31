@@ -16,6 +16,7 @@ contract ICToken {
     function supplyRatePerBlock() external view returns (uint);
     function totalReserves() external view returns (uint);
     function reserveFactorMantissa() external view returns (uint);
+    function balanceOfUnderlying(address account) external view returns (uint);
 
     function totalSupply() external view returns (uint256);
     function balanceOf(address owner) external view returns (uint256 balance);
