@@ -128,12 +128,15 @@ contract SimpleMarginTrading
         require(CDAI.borrow(quote.sellAmount) == 0, "borrow didn't work");
         // 4. swap token for collateral
         _approve(address(DAI), _getZeroExApprovalAddress());
-        // 5. execute swap
+        // 5. verify quote is valid
+        require(quote.sellToken == address(WETH), "not buying WETH");
+        require(quote.buyToken == address(DAI), "not buying WETH");
+        // 6. execute swap
         (bool success, bytes memory data) = address(EXCHANGE).call.value(quote.protocolFee)(quote.calldataHex);
         require(success, "Swap not filled.");
-        // 6. decode fill results
+        // 7. decode fill results
         LibFillResults.FillResults memory fillResults = abi.decode(data, (LibFillResults.FillResults));
-        // 7. position size increase by bought amount of WETH
+        // 8. position size increase by bought amount of WETH
         positionBalance += fillResults.makerAssetFilledAmount;
         borrowBalance = CDAI.borrowBalanceCurrent(address(this));
         // at this point you have CETH, and swapped for WETH
