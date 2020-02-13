@@ -1,4 +1,6 @@
-# Getting started with 0x API
+![alt text](/banner.png "Get started with 0x API")
+
+# Get started with 0x API
 
 This is a repo containing code snippets to interact with 0x API through smart contracts
 or with web3. A number of the code snippets have corresponding guides that provides
