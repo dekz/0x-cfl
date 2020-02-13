@@ -21,14 +21,14 @@ const openAsync = async (web3Wrapper: Web3Wrapper, contract: SimpleMarginTrading
     const userAddresses = await web3Wrapper.getAvailableAddressesAsync();
     const takerAddress = userAddresses[0];
 
-    // `1. perform some calculations for the contract
+    // 1. perform some calculations for the contract
     const positionSize = baseUnitAmount(0.1);
     const leverage = 0.5; // 1.5x leverage 
     const buyAmount = positionSize.multipliedBy(leverage);
 
     console.log(`fetching quote to buy ${buyAmount} ETH`);
 
-    // `2. fetch a quote from 0x API
+    // 2. fetch a quote from 0x API
     const params = {
         buyToken: 'ETH',
         sellToken: 'DAI',
@@ -38,7 +38,6 @@ const openAsync = async (web3Wrapper: Web3Wrapper, contract: SimpleMarginTrading
     const res = await fetch(`https://api.0x.org/swap/v0/quote?${qs.stringify(params)}`);
     const quote = await res.json();
 
-    // 3. convert quote to the contract quote format
     const onchainPassableQuote = {
         buyToken: WETH_CONTRACT,
         sellToken: DAI_CONTRACT,
@@ -49,7 +48,7 @@ const openAsync = async (web3Wrapper: Web3Wrapper, contract: SimpleMarginTrading
     };
     const value = positionSize.plus(quote.protocolFee);
 
-    // 4. execute a smart contract call to open a margin position
+    // 3. execute a smart contract call to open a margin position
     try {
         const results = await contract.open(onchainPassableQuote).callAsync({
             from: takerAddress,
@@ -95,7 +94,6 @@ const closeAsync = async (web3Wrapper: Web3Wrapper, contract: SimpleMarginTradin
     const res = await fetch(`https://api.0x.org/swap/v0/quote?${qs.stringify(params)}`);
     const quote = await res.json();
 
-    // 3. convert quote to the contract quote format
     const onchainPassableQuote = {
         buyToken: WETH_CONTRACT,
         sellToken: DAI_CONTRACT,
@@ -107,7 +105,7 @@ const closeAsync = async (web3Wrapper: Web3Wrapper, contract: SimpleMarginTradin
 
     const value = quote.protocolFee;
 
-    // 4. execute a smart contract call to open a margin position
+    // 3. execute a smart contract call to open a margin position
     try {
         const results = await contract.close(onchainPassableQuote).callAsync({
             from: takerAddress,
