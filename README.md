@@ -32,9 +32,9 @@ All code snippets can be found in either `examples/` or `contracts/` (dependent 
 | `smart_contract_margin_trading.ts`    | [Develop a margin trading smart contract with 0x API](https://0x.org/docs/guides/develop-a-margin-trading-smart-contract-with-0x-api)     | Develop a margin trading contract with Compound Finance + 0x.      |
  
 ## Need help?
-* Refer to our 0x API specification (https://0x.org/docs/api) for detailed documentation.
-* 0x API is open source! Look through the codebase and deploy your own 0x API instance.
-* Don’t hesitate to reach out on Discord (https://discordapp.com/invite/d3FTX3M) for help! The 0x Core team is active on Discord to help teams building with all things 0x.
+* Refer to our [0x API specification](https://0x.org/docs/api) for detailed documentation.
+* 0x API is open source! Look through the [codebase](https://github.com/0xProject/0x-api) and deploy your own 0x API instance.
+* Don’t hesitate to reach out on [Discord](https://discordapp.com/invite/d3FTX3M) for help! The 0x Core team is active on Discord to help teams building with all things 0x.
 
 ## Legal Disclaimer
 
