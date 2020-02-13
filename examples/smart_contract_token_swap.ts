@@ -23,7 +23,6 @@ const DAI_CONTRACT = '0x6b175474e89094c44da98b954eedeac495271d0f'; // DAI mainne
     const fetchDAIBalanceAsync = fetchERC20BalanceFactory(provider, DAI_CONTRACT);
 
     // 1. call 0x api for a quote for one dollar of DAI.
-
     const buyAmount = baseUnitAmount(1);
 
     const params = {
@@ -34,8 +33,8 @@ const DAI_CONTRACT = '0x6b175474e89094c44da98b954eedeac495271d0f'; // DAI mainne
 
     const res = await fetch(`https://api.0x.org/swap/v0/quote?${qs.stringify(params)}`);
     const quote = await res.json();
-    // 2. send response from 0x api to your smart contract
 
+    // 2. send response from 0x api to your smart contract
     const userAddresses = await web3Wrapper.getAvailableAddressesAsync();
     const takerAddress = userAddresses[0];
 
