@@ -34,6 +34,7 @@ contract SimpleMarginTrading
     // margin position related variables
     uint256 internal positionBalance = 0; // total position size (ETH locked in CETH + WETH + contract balance)
 
+    // structs
     struct ZeroExQuote {
         address buyToken;
         address sellToken;
@@ -119,20 +120,20 @@ contract SimpleMarginTrading
         onlyWhenClosed
         returns (uint256 positionBalance, uint256 borrowBalance)
     {
-        // increase position by msg.value - protocolFee
+        // 1. increase position by msg.value - protocolFee
         positionBalance = msg.value.safeSub(quote.protocolFee);
-        // mint collateral in compound
+        // 2. mint collateral in compound
         CETH.mint.value(positionBalance)();
-        // borrow token
+        // 3. borrow token
         require(CDAI.borrow(quote.sellAmount) == 0, "borrow didn't work");
-        // swap token for collateral
+        // 4. swap token for collateral
         _approve(address(DAI), _getZeroExApprovalAddress());
-        // execute swap
+        // 5. execute swap
         (bool success, bytes memory data) = address(EXCHANGE).call.value(quote.protocolFee)(quote.calldataHex);
         require(success, "Swap not filled.");
-        // decode fill results
+        // 6. decode fill results
         LibFillResults.FillResults memory fillResults = abi.decode(data, (LibFillResults.FillResults));
-        // position size increase by bought amount of WETH
+        // 7. position size increase by bought amount of WETH
         positionBalance += fillResults.makerAssetFilledAmount;
         borrowBalance = CDAI.borrowBalanceCurrent(address(this));
         // at this point you have CETH, and swapped for WETH
@@ -146,35 +147,34 @@ contract SimpleMarginTrading
         onlyWhenOpen
         returns (uint ethBalance)
     {
-        // approve for swap
+        // 1. approve for swap
         _approve(address(WETH), _getZeroExApprovalAddress());
-        // verify swap
+        // 2. verify swap
         uint256 wethBalance = WETH.balanceOf(address(this));
         uint256 daiBorrowBalance = CDAI.borrowBalanceCurrent(address(this)); // TODO
-
         require(wethBalance > quote.sellAmount, "not enough to swap");
         require(quote.buyToken == address(DAI), "not buying DAI");
         require(daiBorrowBalance < quote.buyAmount, "not enough DAI to repay");
-        // execute swap
+        // 3. execute swap
         (bool success, bytes memory data) = address(EXCHANGE).call.value(quote.protocolFee)(quote.calldataHex);
         require(success, "Swap not filled.");
-        // decode results
+        // 4. decode results
         LibFillResults.FillResults memory fillResults = abi.decode(data, (LibFillResults.FillResults));
-        // return back DAI
+        // 5. return back DAI
         _approve(address(DAI), address(CDAI));
-        // verify sufficient DAI to repay
         require(CDAI.repayBorrow(fillResults.makerAssetFilledAmount) == 0);
-        // get back ETH
+        // 6. get back ETH
         require(CETH.redeem(CETH.balanceOfUnderlying(address(this))) == 0); // TODO correct?
-        // withdraw all WETH Balance;
+        // 7. withdraw all WETH Balance;
         WETH.withdraw(wethBalance);
-        // transfer all ETH back to owner;
+        // 8. transfer all ETH back to owner;
         ethBalance = address(this).balance;
         OWNER.transfer(address(this).balance);
-        // reset balance
+        // 9. reset balance
         positionBalance = 0;
     }
 
+    // handy function to get borrowed DAI amount
     function getBorrowBalance() public onlyOwner returns (uint256) {
         return CDAI.borrowBalanceCurrent(address(this));
     }
