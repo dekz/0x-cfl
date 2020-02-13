@@ -5,7 +5,7 @@ import { Web3Wrapper } from '@0x/web3-wrapper';
 
 // utils
 import { setUpWeb3GanacheAsync, baseUnitAmount } from './utils';
-import { migrationAsync } from '../migrations/migration';
+import { marginTradingMigrationAsync } from '../migrations/migration';
 
 // wrappers
 import { SimpleMarginTradingContract } from '../generated-wrappers/simple_margin_trading';
@@ -132,7 +132,7 @@ const closeAsync = async (web3Wrapper: Web3Wrapper, contract: SimpleMarginTradin
 
 ((async () => {
     const { web3Wrapper, provider } = await setUpWeb3GanacheAsync(MNEMONIC, ETHEREUM_RPC_URL);
-    const { simpleMarginTradingAddress } = await migrationAsync(provider, web3Wrapper);
+    const { simpleMarginTradingAddress } = await marginTradingMigrationAsync(provider, web3Wrapper);
 
     const contract = new SimpleMarginTradingContract(simpleMarginTradingAddress, provider);
     

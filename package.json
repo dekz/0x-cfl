@@ -9,7 +9,7 @@
         "build:contracts": "yarn compile && yarn generate_contract_wrappers",
         "test:smart_contract_token_swap": "ts-node -r dotenv/config examples/smart_contract_token_swap.ts",
         "test:margin_trading": "ts-node -r dotenv/config examples/smart_contract_margin_trading.ts",
-        "test:web3_token_swaps": "ts-node -r dotenv/config examples/web3_simple_token_swaps.ts"
+        "test:web3_token_swap": "ts-node -r dotenv/config examples/web3_simple_token_swap.ts"
     },
     "config": {
         "abis": "./generated-artifacts/@(SimpleTokenSwap|SimpleMarginTrading).json"

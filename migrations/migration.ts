@@ -16,7 +16,34 @@ const DAI_ADDRESS = '0x6b175474e89094c44da98b954eedeac495271d0f'; // DAI mainnet
 
 const CHAIN_ID = 1 // Mainnet;
 
-export const migrationAsync = async (provider, web3Wrapper) => {
+export const marginTradingMigrationAsync = async (provider, web3Wrapper) => {
+    const userAddresses = await web3Wrapper.getAvailableAddressesAsync();
+    const txDefaults = {
+        from: userAddresses[0],
+    };
+    
+    const zeroExaddresses = getContractAddressesForChainOrThrow(CHAIN_ID);
+
+    const simpleMarginTrading = await SimpleMarginTradingContract.deployAsync(
+        SimpleMarginTradingArtifact.compilerOutput.evm.bytecode.object,
+        SimpleMarginTradingArtifact.compilerOutput.abi,
+        provider,
+        txDefaults,
+        {},
+        zeroExaddresses.exchange,
+        COMPOUND_FINANCE_ADDRESSES.comptroller,
+        COMPOUND_FINANCE_ADDRESSES.cdai,
+        DAI_ADDRESS,
+        COMPOUND_FINANCE_ADDRESSES.ceth,
+        zeroExaddresses.etherToken,
+        );
+    
+    return {
+        simpleMarginTradingAddress: simpleMarginTrading.address,
+    }
+};
+
+export const simpleTokenSwapMigrationAsync = async (provider, web3Wrapper) => {
     const userAddresses = await web3Wrapper.getAvailableAddressesAsync();
     const txDefaults = {
         from: userAddresses[0],
@@ -33,22 +60,7 @@ export const migrationAsync = async (provider, web3Wrapper) => {
         zeroExaddresses.forwarder,
     );
 
-    const simpleMarginTrading = await SimpleMarginTradingContract.deployAsync(
-        SimpleMarginTradingArtifact.compilerOutput.evm.bytecode.object,
-        SimpleMarginTradingArtifact.compilerOutput.abi,
-        provider,
-        txDefaults,
-        {},
-        zeroExaddresses.exchange,
-        COMPOUND_FINANCE_ADDRESSES.comptroller,
-        COMPOUND_FINANCE_ADDRESSES.cdai,
-        DAI_ADDRESS,
-        COMPOUND_FINANCE_ADDRESSES.ceth,
-        zeroExaddresses.etherToken,
-        );
-    
-        return {
+    return {
         simpleTokenSwapAddress: simpleTokenSwap.address,
-        simpleMarginTradingAddress: simpleMarginTrading.address,
     }
 }

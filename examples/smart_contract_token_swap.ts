@@ -4,7 +4,7 @@ import * as fetch from 'node-fetch';
 
 // utils
 import { baseUnitAmount, setUpWeb3GanacheAsync, fetchERC20BalanceFactory } from './utils';
-import { migrationAsync } from '../migrations/migration';
+import { simpleTokenSwapMigrationAsync } from '../migrations/migration';
 
 // wrappers
 import { SimpleTokenSwapContract } from '../generated-wrappers/simple_token_swap';
@@ -17,7 +17,7 @@ const DAI_CONTRACT = '0x6b175474e89094c44da98b954eedeac495271d0f'; // DAI mainne
 (async () => {
     // initialize ganache fork and deploy contracts
     const { web3Wrapper, provider } = await setUpWeb3GanacheAsync(MNEMONIC, ETHEREUM_RPC_URL);
-    const { simpleTokenSwapAddress } = await migrationAsync(provider, web3Wrapper);
+    const { simpleTokenSwapAddress } = await simpleTokenSwapMigrationAsync(provider, web3Wrapper);
 
     // handy util to check address balance of DAI
     const fetchDAIBalanceAsync = fetchERC20BalanceFactory(provider, DAI_CONTRACT);
