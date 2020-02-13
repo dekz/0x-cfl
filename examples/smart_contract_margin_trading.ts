@@ -38,6 +38,7 @@ const openAsync = async (web3Wrapper: Web3Wrapper, contract: SimpleMarginTrading
     const res = await fetch(`https://api.0x.org/swap/v0/quote?${qs.stringify(params)}`);
     const quote = await res.json();
 
+    // prepare API response for contract use
     const onchainPassableQuote = {
         buyToken: WETH_CONTRACT,
         sellToken: DAI_CONTRACT,

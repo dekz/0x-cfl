@@ -126,7 +126,7 @@ contract SimpleMarginTrading
         CETH.mint.value(positionBalance)();
         // 3. borrow token
         require(CDAI.borrow(quote.sellAmount) == 0, "borrow didn't work");
-        // 4. swap token for collateral
+        // 4. approve 0x exchange to move DAI
         _approve(address(DAI), _getZeroExApprovalAddress());
         // 5. verify quote is valid
         require(quote.sellToken == address(WETH), "not buying WETH");
