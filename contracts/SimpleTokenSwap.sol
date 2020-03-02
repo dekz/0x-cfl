@@ -14,18 +14,18 @@ contract SimpleTokenSwap
 {
     using LibBytes for bytes;
 
-    address internal OWNER;
-    IForwarder internal FORWARDER;
+    address internal owner;
+    IForwarder internal forwarder;
 
     constructor (address _forwarder)
         public
     {
-        FORWARDER = IForwarder(_forwarder);
-        OWNER = msg.sender;
+        forwarder = IForwarder(_forwarder);
+        owner = msg.sender;
     }
 
     modifier onlyOwner() {
-        require(msg.sender == OWNER, "permission denied");
+        require(msg.sender == owner, "permission denied");
         _;
     }
 
@@ -47,7 +47,7 @@ contract SimpleTokenSwap
         payable
         returns (bool)
     {
-        (bool success, bytes memory _data) = address(FORWARDER).call.value(msg.value)(callDataHex);
+        (bool success, bytes memory _data) = address(forwarder).call.value(msg.value)(callDataHex);
         require(success == true, "swap reverted");
         return success;
     }
