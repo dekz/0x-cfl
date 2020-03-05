@@ -4,7 +4,7 @@ pragma experimental ABIEncoderV2;
 // interfaces
 import "./ICToken.sol";
 
-contract ICETH is ICToken {
+contract ICEther is ICToken {
     function mint() external payable; // For ETH
     function repayBorrow() external payable; // For ETH
     function repayBorrowBehalf(address borrower) external payable; // For ETH

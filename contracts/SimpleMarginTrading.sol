@@ -8,12 +8,12 @@ import "@0x/contracts-utils/contracts/src/LibSafeMath.sol";
 
 // interfaces
 import "@0x/contracts-erc20/contracts/src/interfaces/IERC20Token.sol";
-import "@0x/contracts-exchange/contracts/src/interfaces/Iexchange.sol";
+import "@0x/contracts-exchange/contracts/src/interfaces/IExchange.sol";
 import "@0x/contracts-asset-proxy/contracts/src/interfaces/IAssetData.sol";
 import "@0x/contracts-erc20/contracts/src/interfaces/IEtherToken.sol";
 import "./interfaces/ICERC20.sol";
-import "./interfaces/Iceth.sol";
-import "./interfaces/Icomptroller.sol";
+import "./interfaces/ICEther.sol";
+import "./interfaces/IComptroller.sol";
 
 contract SimpleMarginTrading
 {
@@ -24,10 +24,10 @@ contract SimpleMarginTrading
 
     // contract references
     address payable internal owner;
-    Iexchange internal exchange;
-    Icomptroller internal comptroller;
+    IExchange internal exchange;
+    IComptroller internal comptroller;
     ICERC20 internal cdai;
-    Iceth internal ceth;
+    ICEther internal ceth;
     IEtherToken internal weth;
     IERC20Token internal dai;
 
@@ -54,10 +54,10 @@ contract SimpleMarginTrading
         )
         public
     {
-        exchange = Iexchange(_exchange);
-        comptroller = Icomptroller(_comptroller);
+        exchange = IExchange(_exchange);
+        comptroller = IComptroller(_comptroller);
         cdai = ICERC20(_cdai);
-        ceth = Iceth(_ceth);
+        ceth = ICEther(_ceth);
         weth = IEtherToken(_weth);
         dai = IERC20Token(_dai);
 
@@ -92,7 +92,7 @@ contract SimpleMarginTrading
     {
         address[] memory markets = new address[](2);
         markets[0] = address(ceth);
-        markets[1] = address(Cdai);
+        markets[1] = address(cdai);
         uint[] memory errors = comptroller.enterMarkets(markets);
         require(errors[0] == 0, "ceth cant enter market");
         require(errors[1] == 0, "Cdai cant enter market");
@@ -125,20 +125,20 @@ contract SimpleMarginTrading
         // 2. mint collateral in compound
         ceth.mint.value(positionBalance)();
         // 3. borrow token
-        require(Cdai.borrow(quote.sellAmount) == 0, "borrow didn't work");
+        require(cdai.borrow(quote.sellAmount) == 0, "Failed to borrow cDAI from Compound Finance");
         // 4. approve 0x exchange to move DAI
         _approve(address(dai), _getZeroExApprovalAddress());
         // 5. verify quote is valid
-        require(quote.sellToken == address(weth), "not selling weth");
-        require(quote.buyToken == address(dai), "not buying dai");
+        require(quote.sellToken == address(weth), "Provided quote is not selling WEth");
+        require(quote.buyToken == address(dai), "Provided quote is not buying Dai");
         // 6. execute swap
         (bool success, bytes memory data) = address(exchange).call.value(quote.protocolFee)(quote.calldataHex);
-        require(success, "Swap not filled.");
+        require(success, "Swap not filled");
         // 7. decode fill results
         LibFillResults.FillResults memory fillResults = abi.decode(data, (LibFillResults.FillResults));
         // 8. position size increase by bought amount of WETH
         positionBalance.safeAdd(fillResults.makerAssetFilledAmount);
-        borrowBalance = Cdai.borrowBalanceCurrent(address(this));
+        borrowBalance = cdai.borrowBalanceCurrent(address(this));
         // at this point you have ceth, and swapped for WETH
     }
 
@@ -154,20 +154,20 @@ contract SimpleMarginTrading
         _approve(address(weth), _getZeroExApprovalAddress());
         // 2. verify swap
         uint256 wethBalance = weth.balanceOf(address(this));
-        uint256 daiBorrowBalance = Cdai.borrowBalanceCurrent(address(this)); // TODO
-        require(wethBalance > quote.sellAmount, "not enough to swap");
-        require(quote.buyToken == address(dai), "not buying dai");
-        require(daiBorrowBalance < quote.buyAmount, "not enough dai to repay");
+        uint256 daiBorrowBalance = cdai.borrowBalanceCurrent(address(this));
+        require(wethBalance > quote.sellAmount, "Provided quote doesn't provide sufficient liquidity");
+        require(quote.buyToken == address(dai), "Provided quote doesn't buy DAI");
+        require(daiBorrowBalance < quote.buyAmount, "Provided quote doesn't provide sufficient liquidity");
         // 3. execute swap
         (bool success, bytes memory data) = address(exchange).call.value(quote.protocolFee)(quote.calldataHex);
-        require(success, "Swap not filled.");
+        require(success, "Swap not filled");
         // 4. decode results
         LibFillResults.FillResults memory fillResults = abi.decode(data, (LibFillResults.FillResults));
         // 5. return back dai
-        _approve(address(dai), address(Cdai));
-        require(Cdai.repayBorrow(fillResults.makerAssetFilledAmount) == 0, "repayment of dai to Compound failed");
+        _approve(address(dai), address(cdai));
+        require(cdai.repayBorrow(fillResults.makerAssetFilledAmount) == 0, "Repayment of DAI to Compound Finance failed");
         // 6. get back ETH
-        require(ceth.redeem(ceth.balanceOfUnderlying(address(this))) == 0, "withdraw of ETH from Compound failed"); // TODO correct?
+        require(ceth.redeem(ceth.balanceOfUnderlying(address(this))) == 0, "Withdrawal of ETH from Compound Financefailed");
         // 7. withdraw all weth Balance;
         weth.withdraw(wethBalance);
         // 8. transfer all ETH back to owner;
@@ -179,6 +179,6 @@ contract SimpleMarginTrading
 
     // handy function to get borrowed dai amount
     function getBorrowBalance() public onlyowner returns (uint256) {
-        return Cdai.borrowBalanceCurrent(address(this));
+        return cdai.borrowBalanceCurrent(address(this));
     }
 }
