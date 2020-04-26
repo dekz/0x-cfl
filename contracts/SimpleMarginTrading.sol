@@ -72,7 +72,7 @@ contract SimpleMarginTrading
     }
 
     // modifiers
-    modifier onlyowner() {
+    modifier onlyOwner() {
         require(msg.sender == owner, "permission denied");
         _;
     }
@@ -95,7 +95,7 @@ contract SimpleMarginTrading
         markets[1] = address(cdai);
         uint[] memory errors = comptroller.enterMarkets(markets);
         require(errors[0] == 0, "ceth cant enter market");
-        require(errors[1] == 0, "Cdai cant enter market");
+        require(errors[1] == 0, "cdai cant enter market");
     }
 
     function _getZeroExApprovalAddress()
@@ -113,12 +113,28 @@ contract SimpleMarginTrading
         LibERC20Token.approve(token, delegated, MAX_UINT);
     }
 
+    function _executeAndVerifyZeroExSwap(ZeroExQuote memory quote)
+        internal
+        returns (LibFillResults.FillResults memory fillResults)
+    {
+        uint256 sellTokenBalanceBefore = IERC20Token(quote.sellToken).balanceOf(address(this));
+        uint256 buyTokenBalanceBefore = IERC20Token(quote.buyToken).balanceOf(address(this));
+        (bool success, bytes memory data) = address(exchange).call.value(quote.protocolFee)(quote.calldataHex);
+        require(success, "Swap not filled");
+        fillResults = abi.decode(data, (LibFillResults.FillResults));
+        uint256 sellTokenBalanceAfter = IERC20Token(quote.sellToken).balanceOf(address(this));
+        uint256 buyTokenBalanceAfter = IERC20Token(quote.buyToken).balanceOf(address(this));
+        // check the balances of the respective sell and buy token balances changed as intended by executing the swap.
+        require(sellTokenBalanceBefore.safeSub(sellTokenBalanceAfter) == fillResults.takerAssetFilledAmount, "Swap performed did not sell correct token/token amount");
+        require(buyTokenBalanceAfter.safeSub(buyTokenBalanceBefore) == fillResults.makerAssetFilledAmount, "Swap performed did not sell correct token/token amount");
+    }
+
     function open(ZeroExQuote memory quote)
         public
         payable
-        onlyowner
+        onlyOwner
         onlyWhenClosed
-        returns (uint256 positionBalance, uint256 borrowBalance)
+        returns (uint256 totalPositionBalance, uint256 borrowBalance)
     {
         // 1. increase position by msg.value - protocolFee
         positionBalance = msg.value.safeSub(quote.protocolFee);
@@ -128,48 +144,42 @@ contract SimpleMarginTrading
         require(cdai.borrow(quote.sellAmount) == 0, "Failed to borrow cDAI from Compound Finance");
         // 4. approve 0x exchange to move DAI
         _approve(address(dai), _getZeroExApprovalAddress());
-        // 5. verify quote is valid
-        require(quote.sellToken == address(weth), "Provided quote is not selling WEth");
-        require(quote.buyToken == address(dai), "Provided quote is not buying Dai");
-        // 6. execute swap
-        (bool success, bytes memory data) = address(exchange).call.value(quote.protocolFee)(quote.calldataHex);
-        require(success, "Swap not filled");
-        // 7. decode fill results
-        LibFillResults.FillResults memory fillResults = abi.decode(data, (LibFillResults.FillResults));
-        // 8. position size increase by bought amount of WETH
-        positionBalance.safeAdd(fillResults.makerAssetFilledAmount);
+        // 5. execute and verify swap
+        LibFillResults.FillResults memory fillResults = _executeAndVerifyZeroExSwap(quote);
+        // 6. position size increase by bought amount of WETH
+        positionBalance = positionBalance.safeAdd(fillResults.makerAssetFilledAmount);
+        totalPositionBalance = positionBalance;
         borrowBalance = cdai.borrowBalanceCurrent(address(this));
-        // at this point you have ceth, and swapped for WETH
+        // at this point you have cETH, and swapped for WETH
     }
 
     function close(
        ZeroExQuote memory quote
     )
         public
-        onlyowner
+        payable
+        onlyOwner
         onlyWhenOpen
         returns (uint ethBalance)
     {
-        // 1. approve for swap
+        // 1. wrap extra ETH sent with tx to buy DAI (additional ETH is sent to pay for interest rate)
+        weth.deposit.value(msg.value.safeSub(quote.protocolFee))();
+        // 2. approve 0x exchange to move WETH
         _approve(address(weth), _getZeroExApprovalAddress());
-        // 2. verify swap
+        // 3. verify swap amounts are enough to repay balance
         uint256 wethBalance = weth.balanceOf(address(this));
         uint256 daiBorrowBalance = cdai.borrowBalanceCurrent(address(this));
-        require(wethBalance > quote.sellAmount, "Provided quote doesn't provide sufficient liquidity");
-        require(quote.buyToken == address(dai), "Provided quote doesn't buy DAI");
-        require(daiBorrowBalance < quote.buyAmount, "Provided quote doesn't provide sufficient liquidity");
-        // 3. execute swap
-        (bool success, bytes memory data) = address(exchange).call.value(quote.protocolFee)(quote.calldataHex);
-        require(success, "Swap not filled");
-        // 4. decode results
-        LibFillResults.FillResults memory fillResults = abi.decode(data, (LibFillResults.FillResults));
-        // 5. return back dai
+        require(wethBalance >= quote.sellAmount, "Provided quote exceeds available WETH");
+        require(daiBorrowBalance <= quote.buyAmount, "Provided quote doesn't provide sufficient liquidity");
+        // 4. execute and verify swap
+        _executeAndVerifyZeroExSwap(quote);
+        // 5. return back DAI
         _approve(address(dai), address(cdai));
-        require(cdai.repayBorrow(fillResults.makerAssetFilledAmount) == 0, "Repayment of DAI to Compound Finance failed");
+        require(cdai.repayBorrow(daiBorrowBalance) == 0, "Repayment of DAI to Compound Finance failed");
         // 6. get back ETH
-        require(ceth.redeem(ceth.balanceOfUnderlying(address(this))) == 0, "Withdrawal of ETH from Compound Financefailed");
-        // 7. withdraw all weth Balance;
-        weth.withdraw(wethBalance);
+        require(ceth.redeem(ceth.balanceOf(address(this))) == 0, "Withdrawal of ETH from Compound Finance failed");
+        // 7. withdraw all WETH Balance;
+        weth.withdraw(weth.balanceOf(address(this)));
         // 8. transfer all ETH back to owner;
         ethBalance = address(this).balance;
         owner.transfer(address(this).balance);
@@ -178,7 +188,11 @@ contract SimpleMarginTrading
     }
 
     // handy function to get borrowed dai amount
-    function getBorrowBalance() public onlyowner returns (uint256) {
+    function getBorrowBalance()
+        public
+        onlyOwner
+        returns (uint256)
+    {
         return cdai.borrowBalanceCurrent(address(this));
     }
 }

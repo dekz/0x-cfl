@@ -15,7 +15,7 @@
         "abis": "./generated-artifacts/@(SimpleTokenSwap|SimpleMarginTrading).json"
     },
     "dependencies": {
-        "@0x/contract-addresses": "^4.3.0",
+        "@0x/contract-addresses": "0xProject/gitpkg-registry#0x-contract-addresses-v4.9.0-a458e81f8",
         "@0x/contracts-asset-proxy": "^3.1.0",
         "@0x/contracts-erc20": "^3.0.3",
         "@0x/contracts-exchange": "^3.1.0",
