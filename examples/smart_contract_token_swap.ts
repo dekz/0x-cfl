@@ -5,6 +5,7 @@ import * as fetch from 'node-fetch';
 // utils
 import { baseUnitAmount, setUpWeb3, fetchERC20BalanceFactory } from './utils';
 import { simpleTokenSwapMigrationAsync } from '../migrations/migration';
+import { ASSET_ADDRESSES } from './utils/addresses';
 
 // wrappers
 import { SimpleTokenSwapContract } from '../generated-wrappers/simple_token_swap';
@@ -12,14 +13,13 @@ import { SimpleTokenSwapContract } from '../generated-wrappers/simple_token_swap
 // constants
 const ETHEREUM_RPC_URL = process.env.ETHEREUM_RPC_URL;
 const MNEMONIC = process.env.MNEMONIC;
-const DAI_CONTRACT = '0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa'; // DAI kovan contract address
 
 (async () => {
     // initialize ganache fork and deploy contracts
     const { web3Wrapper, provider } = await setUpWeb3(MNEMONIC, ETHEREUM_RPC_URL);
     const { simpleTokenSwapAddress } = await simpleTokenSwapMigrationAsync(provider, web3Wrapper);
     // handy util to check address balance of DAI
-    const fetchDAIBalanceAsync = fetchERC20BalanceFactory(provider, DAI_CONTRACT);
+    const fetchDAIBalanceAsync = fetchERC20BalanceFactory(provider, ASSET_ADDRESSES.dai);
 
     // 1. call 0x api for a quote for one dollar of DAI.
     const buyAmount = baseUnitAmount(1);

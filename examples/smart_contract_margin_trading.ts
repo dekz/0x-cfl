@@ -5,8 +5,9 @@ import { BigNumber } from '@0x/utils';
 import { Web3Wrapper } from '@0x/web3-wrapper';
 
 // utils
-import { setUpWeb3, setUpWeb3GanacheAsync, baseUnitAmount } from './utils';
+import { setUpWeb3, baseUnitAmount } from './utils';
 import { marginTradingMigrationAsync } from '../migrations/migration';
+import { ASSET_ADDRESSES } from './utils/addresses';
 
 // wrappers
 import { SimpleMarginTradingContract } from '../generated-wrappers/simple_margin_trading';
@@ -14,8 +15,6 @@ import { SimpleMarginTradingContract } from '../generated-wrappers/simple_margin
 // constants
 const ETHEREUM_RPC_URL = process.env.ETHEREUM_RPC_URL;
 const MNEMONIC = process.env.MNEMONIC;
-const WETH_CONTRACT = '0xd0a1e359811322d97991e03f863a0c30c2cf029c'; // WETH kovan contract address
-const DAI_CONTRACT = '0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa'; // DAI kovan contract address
 
 const openAsync = async (web3Wrapper: Web3Wrapper, contract: SimpleMarginTradingContract) => {
     // user address interacting with margin contract
@@ -42,8 +41,8 @@ const openAsync = async (web3Wrapper: Web3Wrapper, contract: SimpleMarginTrading
 
     // prepare API response for contract use
     const onchainPassableQuote = {
-        buyToken: WETH_CONTRACT,
-        sellToken: DAI_CONTRACT,
+        buyToken: ASSET_ADDRESSES.weth,
+        sellToken: ASSET_ADDRESSES.dai,
         buyAmount: quote.buyAmount,
         sellAmount: quote.sellAmount,
         protocolFee: quote.protocolFee,
@@ -100,8 +99,8 @@ const closeAsync = async (web3Wrapper: Web3Wrapper, contract: SimpleMarginTradin
     const quote = await res.json();
 
     const onchainPassableQuote = {
-        buyToken: DAI_CONTRACT,
-        sellToken: WETH_CONTRACT,
+        buyToken: ASSET_ADDRESSES.dai,
+        sellToken: ASSET_ADDRESSES.weth,
         buyAmount: quote.buyAmount,
         sellAmount: quote.sellAmount,
         protocolFee: quote.protocolFee,
@@ -136,18 +135,14 @@ const closeAsync = async (web3Wrapper: Web3Wrapper, contract: SimpleMarginTradin
 };
 
 ((async () => {
-    try {
-        const { web3Wrapper, provider } = await setUpWeb3(MNEMONIC, ETHEREUM_RPC_URL);
-        const { simpleMarginTradingAddress } = await marginTradingMigrationAsync(provider, web3Wrapper);
+    const { web3Wrapper, provider } = await setUpWeb3(MNEMONIC, ETHEREUM_RPC_URL);
+    const { simpleMarginTradingAddress } = await marginTradingMigrationAsync(provider, web3Wrapper);
 
-        const contract = new SimpleMarginTradingContract(simpleMarginTradingAddress, provider);
-        
-        // open a position
-        await openAsync(web3Wrapper, contract);
+    const contract = new SimpleMarginTradingContract(simpleMarginTradingAddress, provider);
+    
+    // open a position
+    await openAsync(web3Wrapper, contract);
 
-        // immediately close the position
-        await closeAsync(web3Wrapper, contract);
-    } catch (e) {
-        throw e;
-    }
+    // immediately close the position
+    await closeAsync(web3Wrapper, contract);
 })())

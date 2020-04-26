@@ -4,11 +4,11 @@ import * as fetch from 'node-fetch';
 
 // utils
 import { setUpWeb3, baseUnitAmount, fetchERC20BalanceFactory } from './utils';
+import { ASSET_ADDRESSES } from './utils/addresses';
 
 // constants
 const ETHEREUM_RPC_URL = process.env.ETHEREUM_RPC_URL;
 const MNEMONIC = process.env.MNEMONIC;
-const DAI_CONTRACT = '0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa'; // DAI mainnet contract address
 
 (async () => {
     // initialize ganache fork
@@ -28,7 +28,7 @@ const DAI_CONTRACT = '0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa'; // DAI mainne
         takerAddress,
     }
     
-    const fetchDAIBalanceAsync = fetchERC20BalanceFactory(provider, DAI_CONTRACT);
+    const fetchDAIBalanceAsync = fetchERC20BalanceFactory(provider, ASSET_ADDRESSES.dai);
 
     const res = await fetch(`https://kovan.api.0x.org/swap/v0/quote?${qs.stringify(params)}`);
     const quote = await res.json();
