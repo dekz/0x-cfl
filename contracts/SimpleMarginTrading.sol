@@ -145,6 +145,8 @@ contract SimpleMarginTrading
         // 4. approve 0x exchange to move DAI
         _approve(address(dai), _getZeroExApprovalAddress());
         // 5. execute and verify swap
+        require(quote.sellToken == address(weth), "Provided quote is not selling WEth");
+        require(quote.buyToken == address(dai), "Provided quote is not buying Dai");
         LibFillResults.FillResults memory fillResults = _executeAndVerifyZeroExSwap(quote);
         // 6. position size increase by bought amount of WETH
         positionBalance = positionBalance.safeAdd(fillResults.makerAssetFilledAmount);
@@ -169,6 +171,8 @@ contract SimpleMarginTrading
         // 3. verify swap amounts are enough to repay balance
         uint256 wethBalance = weth.balanceOf(address(this));
         uint256 daiBorrowBalance = cdai.borrowBalanceCurrent(address(this));
+        require(quote.sellToken == address(weth), "Provided quote is not selling WEth");
+        require(quote.buyToken == address(dai), "Provided quote is not buying Dai");
         require(wethBalance >= quote.sellAmount, "Provided quote exceeds available WETH");
         require(daiBorrowBalance <= quote.buyAmount, "Provided quote doesn't provide sufficient liquidity");
         // 4. execute and verify swap
