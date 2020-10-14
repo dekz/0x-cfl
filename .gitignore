@@ -1,5 +1,3 @@
-generated-artifacts/*.json
-generated-wrappers/*.ts
-ganache.log
+build/*
+**.log
 node_modules
-.env
